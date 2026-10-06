@@ -73,6 +73,24 @@ public class PieControl implements PieMenu.PieController {
     private final List<PieMenu.Trigger> mEnabledTriggers;
     private final boolean mApplyThemeColor;
     private int mThemeColor;
+    private int mColorRetryCount;
+    private final Runnable mColorRetry = new Runnable() {
+        @Override
+        public void run() {
+            if (mPie == null || !mPie.isOpen()) return;
+            updatePieColor();
+            if (++mColorRetryCount < 3) mPie.postDelayed(this, 150L);
+        }
+    };
+
+    private void updatePieColor() {
+        if (mPie == null) return;
+        int color = mHelper.getEffectiveStatusBarColor();
+        if (mThemeColor != color) {
+            mThemeColor = color;
+            mPie.setThemeColors(color);
+        }
+    }
 
     PieControl(Activity activity, Resources res, XSharedPreferences prefs) {
         mActivity = activity;
@@ -109,6 +127,7 @@ public class PieControl implements PieMenu.PieController {
     }
 
     void destroy() {
+        if (mPie != null) mPie.removeCallbacks(mColorRetry);
         removeFromParent();
         mPie.clearItems();
         mPie = null;
@@ -151,11 +170,11 @@ public class PieControl implements PieMenu.PieController {
         }
 
         if (mApplyThemeColor) {
-            int color = mHelper.getEffectiveStatusBarColor();
-            if (mThemeColor != color) {
-                mThemeColor = color;
-                mPie.setThemeColors(color);
-            }
+            mPie.removeCallbacks(mColorRetry);
+            updatePieColor();
+            mColorRetryCount = 0;
+            // Bounded retries let startup drawing settle while the menu is still open.
+            mPie.postDelayed(mColorRetry, 100L);
         }
 
         final int tabCount = mHelper.getTabCount();

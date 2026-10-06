@@ -1,3 +1,7 @@
-Requires test4 already applied. Replace the five included files at their exact paths in the existing repository. Build and install as an update, then open ChromePie Status Match > Pie icon colours. Choose Automatic (contrast), Always white, or Always black. Force-stop and reopen Titanium after changing the option; settings are read when the pie is created. The tab-count text follows the same option. Always white can be difficult to see on white pages; choose Automatic to restore adaptive contrast. Target SDK remains 28 for normal tap-to-install.
+Requires test5 already applied. Replace the four included files at their identical repository paths, build and install as an update. Force-stop and reopen Titanium.
 
-Validation: modified XML parses and git diff --check passes. Compilation/device verification pending; no local Android build tools.
+White/near-white slices (all RGB channels >=240) always use black icons, overriding Always white. Other colours honour the icon setting. This applies to submenu/selected fills and tab-count badges according to their own background colours.
+
+After each opening, colour detection retries at approximately 100, 250 and 400 ms while the pie is open. A changed colour refreshes the visible pie. Closing stops the next retry; reopening cancels previous pending work. Destruction removes callbacks. If Titanium remains unready beyond this short window, the next swipe can still be needed. Existing status-area sampling is unchanged.
+
+Target SDK remains 28. XML parsing, white/orange boundary checks and git diff --check passed. Compilation and device verification pending: no local Android build tools.

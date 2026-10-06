@@ -409,7 +409,14 @@ public class PieMenu extends FrameLayout {
         }
     }
 
+    public boolean isOpen() {
+        return mOpen;
+    }
+
     private int contrastForeground(int background) {
+        // White safety override takes priority over the user's white-icon preference.
+        if (Color.red(background) >= 240 && Color.green(background) >= 240
+                && Color.blue(background) >= 240) return Color.BLACK;
         if ("white".equals(mIconColorMode)) return Color.WHITE;
         if ("black".equals(mIconColorMode)) return Color.BLACK;
         double r = linearChannel(Color.red(background));
