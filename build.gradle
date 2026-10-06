@@ -12,9 +12,9 @@ android {
     defaultConfig {
         applicationId 'dev.chet.chromepiestatusmatch'
         minSdk 16
-        targetSdk 23
-        versionCode 23
-        versionName '0.7.6-statusmatch-test2'
+        targetSdk 28
+        versionCode 25
+        versionName '0.7.8-statusmatch-test4'
     }
     lint { abortOnError false }
     sourceSets {

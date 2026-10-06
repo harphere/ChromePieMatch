@@ -1,16 +1,5 @@
-ChromePie Status Match test 2 — Titanium trial
+Apply these nine files at their exact paths to your existing test2 or test3 repository. Includes adaptive black/white icon contrast from test3. Build using GitHub Actions, download and extract the APK artifact, then tap the APK on the phone. Allow installation from your file manager if prompted. No low-target ADB bypass should be required: targetSdk is now 28. Package ID remains dev.chet.chromepiestatusmatch. Updates require the same signing key as the installed APK; a signature mismatch is separate from the old-target block.
 
-Replace the six included files at the identical paths in your existing GitHub repository. Keep src/, res/, and .github/ directories intact; do not flatten paths. Do not upload this README as a resource. Resource icons and all other files stay as they are.
+After installing, reboot. Enable the module for Titanium and, if preference sharing is unavailable, for ChromePie Status Match itself. Open module settings and enable Match status bar colour for pie menu. A new guard prevents a settings crash if the framework does not support world-readable preferences. In that case settings are saved privately and browser preference sharing is NOT fixed; a toast explains this. Vector compatibility needs device verification.
 
-Build in GitHub Actions and install as an update to dev.chet.chromepiestatusmatch. If Android blocks the low target, use:
-adb install -r --bypass-low-target-sdk-block path/to/ChromePie-debug.apk
-
-Reboot after updating so the framework sees the new xposedsharedprefs metadata. Open ChromePie Status Match and select your settings again. Enable Match status bar colour for pie menu. Scope the module to Titanium (io.github.jqssun.helium). Restart Titanium.
-
-This version draws a 64 by 4 pixel in-memory strip of the app's Java View rendering in the middle of the status inset and uses its dominant opaque colour. No image is saved or sent. It runs on pie open. SurfaceView/compositor content may not be captured; non-uniform/transparent strips fall back to the previous resolver. It matches the status area, not independently the navigation bar. Existing slice transparency and white icons remain.
-
-Preference loading now occurs in the browser process with an explicit preference filename; xposedsharedprefs metadata enables LSPosed's documented shared preference support. VectorLegacyBridge compatibility remains unverified. Open the module app before testing to initialise preferences; sharing may require scoping the module app to itself if the framework does not automatically apply its preference hooks.
-
-Validation: XML parsing and git diff --check passed. This environment still lacks Android SDK/Gradle, so compilation and device behaviour have not been verified. User's first build compiled successfully on GitHub. This update does not change unrelated Chromium action hooks.
-
-Please send LSPosed status-match source logs and a screenshot if it still falls back. Expected successful source: rendered status area.
+Validation: XML parsed and git diff --check passed. No Android SDK/Gradle locally; compilation and tap-to-install behaviour are not yet verified. This ZIP contains source updates, not a compiled APK.

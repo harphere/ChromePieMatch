@@ -24,6 +24,10 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -397,8 +401,50 @@ public class PieMenu extends FrameLayout {
                 canvas.translate(-view.getWidth(), 0);
             }
             canvas.translate(view.getX(), view.getY());
+            applyForegroundContrast(view, p.getColor());
             view.draw(canvas);
             canvas.restoreToCount(state);
+        }
+    }
+
+    private static int contrastForeground(int background) {
+        double r = linearChannel(Color.red(background));
+        double g = linearChannel(Color.green(background));
+        double b = linearChannel(Color.blue(background));
+        double luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        // Compare contrast ratios for black and white; includes selected/submenu fills.
+        return luminance > 0.179 ? Color.BLACK : Color.WHITE;
+    }
+
+    private static double linearChannel(int channel) {
+        double value = channel / 255.0;
+        return value <= 0.04045 ? value / 12.92
+                : Math.pow((value + 0.055) / 1.055, 2.4);
+    }
+
+    private void applyForegroundContrast(View view, int background) {
+        int foreground = contrastForeground(background);
+        if (view instanceof ImageView) {
+            ((ImageView) view).setColorFilter(foreground, PorterDuff.Mode.SRC_IN);
+        } else if (view instanceof TextView) {
+            // The tab-count text has its own tinted badge background.
+            if (view.getId() == R.id.count_label
+                    && view.getBackground() instanceof GradientDrawable
+                    && android.os.Build.VERSION.SDK_INT >= 24) {
+                android.content.res.ColorStateList colors =
+                        ((GradientDrawable) view.getBackground()).getColor();
+                if (colors != null) foreground = contrastForeground(
+                        colors.getColorForState(view.getDrawableState(), colors.getDefaultColor()));
+            }
+            TextView text = (TextView) view;
+            int alpha = Color.alpha(text.getCurrentTextColor());
+            text.setTextColor((foreground & 0x00ffffff) | (alpha << 24));
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                applyForegroundContrast(group.getChildAt(i), background);
+            }
         }
     }
 
