@@ -21,8 +21,6 @@ public class ChromePie implements IXposedHookZygoteInit {
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
-        final XSharedPreferences preferences = new XSharedPreferences(PACKAGE_NAME);
-        preferences.makeWorldReadable();
 
         XposedHelpers.findAndHookMethod(Activity.class, "onStart", new XC_MethodHook() {
             @Override
@@ -32,7 +30,8 @@ public class ChromePie implements IXposedHookZygoteInit {
                     return;
                 }
                 if (XposedHelpers.getAdditionalInstanceField(activity, "pie_control") == null) {
-                    initPieControl(activity, preferences);
+                    initPieControl(activity, new XSharedPreferences(PACKAGE_NAME,
+                            PACKAGE_NAME + "_preferences"));
                 }
             }
         });

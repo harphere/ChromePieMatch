@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="22"
-    android:versionName="0.7.5-statusmatch-test1" >
+    android:versionCode="23"
+    android:versionName="0.7.6-statusmatch-test2" >
 
     <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="23" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
@@ -54,6 +54,7 @@
             android:name="xposeddescription"
             android:value="@string/app_description" />
 
+        <meta-data android:name="xposedsharedprefs" android:value="true" />
     </application>
 
 </manifest>

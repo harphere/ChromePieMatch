@@ -5,6 +5,11 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.view.WindowInsets;
+import java.util.HashMap;
+import java.util.Map;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -812,6 +817,8 @@ class ChromeHelper {
                 if (Color.alpha(color) == 255) return statusColor(color, "window");
             } catch (RuntimeException ignored) { }
         }
+        Integer sampled = sampleStatusArea();
+        if (sampled != null) return statusColor(sampled, "rendered status area");
         String[] names = {"status_bar_background", "status_bar_scrim",
                 "control_container", "toolbar", "toolbar_container",
                 "toolbar_control_container", "top_toolbar", "top_controls"};
@@ -838,6 +845,46 @@ class ChromeHelper {
             if (Color.alpha(color) == 255) return statusColor(color, "primary fallback");
         } catch (Throwable ignored) { }
         return statusColor(Color.DKGRAY, "dark grey fallback");
+    }
+
+    // Draw only a narrow status-area band; no screenshot is saved or transmitted.
+    // This observes Java View drawing, not separate SurfaceView/GPU compositor content.
+    private Integer sampleStatusArea() {
+        if (Build.VERSION.SDK_INT < 23) return null;
+        Bitmap bitmap = null;
+        try {
+            View decor = mActivity.getWindow().getDecorView();
+            WindowInsets insets = decor.getRootWindowInsets();
+            int top = insets == null ? 0 : insets.getSystemWindowInsetTop();
+            if (top <= 0 || decor.getWidth() <= 0 || decor.getHeight() < top) return null;
+            bitmap = Bitmap.createBitmap(64, 4, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            // Middle of status inset; system status icons belong to SystemUI, not this View.
+            canvas.scale(64f / decor.getWidth(), 1f);
+            canvas.translate(0f, -Math.max(0, top / 2 - 2));
+            decor.draw(canvas);
+            Map<Integer, Integer> counts = new HashMap<>();
+            int opaque = 0;
+            int bestColor = 0, bestCount = 0;
+            for (int y = 0; y < 4; y++) {
+                for (int x = 4; x < 60; x++) {
+                    int color = bitmap.getPixel(x, y);
+                    if (Color.alpha(color) != 255) continue;
+                    opaque++;
+                    Integer old = counts.get(color);
+                    int count = old == null ? 1 : old + 1;
+                    counts.put(color, count);
+                    if (count > bestCount) { bestCount = count; bestColor = color; }
+                }
+            }
+            // Require a mostly opaque, uniform band rather than taking a random pixel.
+            if (opaque >= 180 && bestCount * 100 >= opaque * 60) return bestColor;
+        } catch (RuntimeException e) {
+            de.robv.android.xposed.XposedBridge.log(TAG + "status sample unavailable: " + e);
+        } finally {
+            if (bitmap != null) bitmap.recycle();
+        }
+        return null;
     }
 
     private Integer solidBackgroundColor(View view) {
