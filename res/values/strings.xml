@@ -96,4 +96,15 @@
     <string name="downloads">Downloads</string>
     <string name="open_recently_closed">Open recently closed tab</string>
 
+    <string name="pie_icon_color_title">Pie icon colours</string>
+    <string-array name="pie_icon_color_entries">
+        <item>Automatic (contrast)</item>
+        <item>Always white</item>
+        <item>Always black</item>
+    </string-array>
+    <string-array name="pie_icon_color_values">
+        <item>auto</item>
+        <item>white</item>
+        <item>black</item>
+    </string-array>
 </resources>

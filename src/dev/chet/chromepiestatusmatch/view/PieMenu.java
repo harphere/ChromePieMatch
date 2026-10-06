@@ -52,6 +52,7 @@ import de.robv.android.xposed.XSharedPreferences;
 public class PieMenu extends FrameLayout {
 
     private static final int MAX_LEVELS = 6;
+    private String mIconColorMode = "auto";
     private static final long ANIMATION = 80;
 
     public interface PieController {
@@ -141,6 +142,7 @@ public class PieMenu extends FrameLayout {
         mSubPaint.setColor(res.getColor(R.color.qc_sub));
         mSubPaint.setAntiAlias(true);
         mRepositionMenu = prefs.getBoolean("reposition_menu", false);
+        mIconColorMode = prefs.getString("pie_icon_color_mode", "auto");
     }
 
     public void setThemeColors(int themeColor) {
@@ -407,7 +409,9 @@ public class PieMenu extends FrameLayout {
         }
     }
 
-    private static int contrastForeground(int background) {
+    private int contrastForeground(int background) {
+        if ("white".equals(mIconColorMode)) return Color.WHITE;
+        if ("black".equals(mIconColorMode)) return Color.BLACK;
         double r = linearChannel(Color.red(background));
         double g = linearChannel(Color.green(background));
         double b = linearChannel(Color.blue(background));

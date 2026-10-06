@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="25"
-    android:versionName="0.7.8-statusmatch-test4" >
+    android:versionCode="26"
+    android:versionName="0.7.9-statusmatch-test5" >
 
     <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="28" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
