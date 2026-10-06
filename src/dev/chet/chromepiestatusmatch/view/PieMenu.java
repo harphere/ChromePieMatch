@@ -53,6 +53,7 @@ public class PieMenu extends FrameLayout {
 
     private static final int MAX_LEVELS = 6;
     private String mIconColorMode = "auto";
+    private boolean mLightPie;
     private static final long ANIMATION = 80;
 
     public interface PieController {
@@ -146,11 +147,14 @@ public class PieMenu extends FrameLayout {
     }
 
     public void setThemeColors(int themeColor) {
+        mLightPie = isNearWhite(themeColor);
+        // A subtle opaque grey keeps the menu visible over a white webpage.
+        if (mLightPie) themeColor = Color.rgb(232, 232, 232);
         int statusColor = Utils.getDarkenedColor(themeColor, 0.6f);
         int tintedColor = Utils.applyColorTint(themeColor, 0.2f);
-        mNormalPaint.setColor(Utils.applyColorAlpha(themeColor, 224));
-        mSelectedPaint.setColor(Utils.applyColorAlpha(statusColor, 224));
-        mSubPaint.setColor(Utils.applyColorAlpha(tintedColor, 240));
+        mNormalPaint.setColor(Utils.applyColorAlpha(themeColor, mLightPie ? 255 : 224));
+        mSelectedPaint.setColor(Utils.applyColorAlpha(statusColor, mLightPie ? 255 : 224));
+        mSubPaint.setColor(Utils.applyColorAlpha(tintedColor, mLightPie ? 255 : 240));
         setTabCountBackgroundColor(Utils.applyColorTint(themeColor, 0.35f));
         invalidate();
     }
@@ -165,6 +169,7 @@ public class PieMenu extends FrameLayout {
     }
 
     public void setDefaultColors(Resources res) {
+        mLightPie = false;
         mNormalPaint.setColor(res.getColor(R.color.qc_normal));
         mSelectedPaint.setColor(res.getColor(R.color.qc_selected));
         mSubPaint.setColor(res.getColor(R.color.qc_sub));
@@ -413,7 +418,14 @@ public class PieMenu extends FrameLayout {
         return mOpen;
     }
 
+    private static boolean isNearWhite(int color) {
+        return Color.red(color) >= 240 && Color.green(color) >= 240
+                && Color.blue(color) >= 240;
+    }
+
     private int contrastForeground(int background) {
+        // Keep dark foreground on the new grey fill, including its selected slices.
+        if (mLightPie) return Color.BLACK;
         // White safety override takes priority over the user's white-icon preference.
         if (Color.red(background) >= 240 && Color.green(background) >= 240
                 && Color.blue(background) >= 240) return Color.BLACK;
